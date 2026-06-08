@@ -6,14 +6,29 @@ const API_KEY  = "c2900e315c448fcbef082442967606b4";
 const API_BASE = "https://v3.football.api-sports.io";
 const PORT     = process.env.PORT || 3001;
 
+app.use(express.json());
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "GET, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type");
   if (req.method === "OPTIONS") return res.sendStatus(200);
   next();
 });
 
+// ── In-memory shared store ────────────────────────────────────────────────────
+// (מתאפס כל פעם שהשרת מתעורר - מספיק לקבוצה קטנה)
+let store = { players: [], bets: {}, matches: [] };
+
+// GET store
+app.get("/store", (req, res) => res.json(store));
+
+// POST store (מחליף את כל ה-store)
+app.post("/store", (req, res) => {
+  store = { ...store, ...req.body };
+  res.json({ ok: true });
+});
+
+// ── Football API proxy ────────────────────────────────────────────────────────
 app.get("/api/*", async (req, res) => {
   const path = req.url.replace("/api", "");
   try {
