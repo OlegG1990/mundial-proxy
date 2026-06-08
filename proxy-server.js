@@ -8,7 +8,9 @@ const PORT     = process.env.PORT || 3001;
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "*");
+  res.header("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  if (req.method === "OPTIONS") return res.sendStatus(200);
   next();
 });
 
@@ -25,6 +27,4 @@ app.get("/api/*", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Proxy running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Proxy running on port ${PORT}`));
